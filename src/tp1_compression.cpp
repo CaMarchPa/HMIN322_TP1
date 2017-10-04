@@ -177,9 +177,12 @@ ImageBase imgGenByKMeans(ImageBase img, int ** palette) {
 	int width = img.getWidth();
 
 	ImageBase imOut(width, height, img.getColor());
+	std::cout << "height = " << height << '\n';
+	std::cout << "width = " << width << '\n';
 
-	for (int j = 0; j < img.getHeight(); i++) {
-		for (int i = 0; i < img.getWidth(); i++) {
+	for (int j = 0; j < height; ++j) {
+		for (int i = 0; i < width; ++i) {
+			std::cout << "ERROR" << '\n';
 			double dist_temp = 99999.0f;
 			int index = 0;
 			int r = img[j*3][i*3+0];
@@ -212,7 +215,6 @@ int ** getPalette(ImageBase img) {
 		palette[i][0] = -1;
 		palette[i][1] = -1;
 		palette[i][2] = -1;
-
 	}
 
 	int counter = 0;
