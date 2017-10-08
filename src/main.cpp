@@ -20,10 +20,11 @@ int main(int argc, char const *argv[]) {
 	}
     img_read.load(argv[1]);
     float ** palette = getPalette(img_read);
-    // for (int i = 0; i < 256; i++) {
-    //     std::cout << "palette : " << i << " r = " << palette[i][0] << ", g = " << palette[i][1] << ", b = " << palette[i][2] << '\n';
-    // }
+
     CImg<float> out = imgGenByKMeans(img_read, palette);
+    double psnr = img_read.PSNR(out);
+    std::cout << "Le psnr avec est de : " << psnr << '\n';
+
     out.save_png("../img/kmeansResult.png");
     return 0;
 }
@@ -91,7 +92,7 @@ CImg<float> imgGenByKMeans(CImg<float> img, float ** palette) {
     do {
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
-                float dist_temp = 999999.0f;
+                float current_dist = 999999.0f;
                 int index = 0;
                 //
                 float r = imgAVG(i, j, 0, 0);
@@ -99,9 +100,9 @@ CImg<float> imgGenByKMeans(CImg<float> img, float ** palette) {
                 float b = imgAVG(i, j, 0, 2);
                 //
                 for (int k = 0; k < 256; k++) {
-                    float current_dist = computeEcludianDist(palette[k], r, g, b);
-                    if (current_dist < dist_temp) {
-                        dist_temp = current_dist;
+                    float dist_temp = computeEcludianDist(palette[k], r, g, b);
+                    if (dist_temp < current_dist) {
+                        current_dist = dist_temp;
                         index = k;
                     }
                 }
@@ -115,7 +116,6 @@ CImg<float> imgGenByKMeans(CImg<float> img, float ** palette) {
                 imOut(i, j, 0, 0) = palette[index][0];
                 imOut(i, j, 0, 1) = palette[index][1];
                 imOut(i, j, 0, 2) = palette[index][2];
-                // std::cout << "loop" << '\n';
             }
         }
 
@@ -153,7 +153,7 @@ CImg<float> imgGenByKMeans(CImg<float> img, float ** palette) {
             float dist = computeEcludianDist(palette[i], avg_list[i][0], avg_list[i][1], avg_list[i][2]);
             is_convergent = is_convergent && (dist <= EPSILON);
         }
-        
+        delete palette;
         palette = getPalette(imgAVG);
         number_of_loop++;
         std::cout << "number of loop : " << number_of_loop << '\n';
